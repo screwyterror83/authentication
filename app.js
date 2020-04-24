@@ -80,7 +80,7 @@ app.post("/login", (req,res) => {
           console.log("Log in successful, please proceed.");
           res.render("secrets");
         } else {
-          res.send("Log in failed.");
+          console.log("Log in failed.");
           res.render("home");  
         }
       }
