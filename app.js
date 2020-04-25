@@ -4,7 +4,9 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
 /* install and declare mongoose encryption module so it enables encryption capability. */
-const encrypt = require("mongoose-encryption");
+// const encrypt = require("mongoose-encryption");
+// use hashing instead of mongoose-encryption
+const md5 = require("md5")
 
 const app = express();
 
@@ -35,8 +37,8 @@ using it to encrypt "password" field. after this is done, no other action is req
 to ensure the encryption of password entered.
 */
 
-
-userSchema.plugin(encrypt, { secret: process.env.SECRETKEY, encryptedFields: ["password"] });
+// We will be using hashing in this level instead of encryption module.
+// userSchema.plugin(encrypt, { secret: process.env.SECRETKEY, encryptedFields: ["password"] });
 
 
 const User = mongoose.model("User", userSchema);
@@ -69,7 +71,7 @@ app.post("/register", (req, res) => {
       const newUser = new User(
         {
           email: userName,
-          password: password
+          password: md5(password)
         });
 
       newUser.save((err) => {
@@ -87,7 +89,7 @@ app.post("/register", (req, res) => {
 
 app.post("/login", (req,res) => {
   const userName = req.body.username;
-  const password = req.body.password;
+  const password = md5(req.body.password);
 
   User.findOne({ email: userName }, (err, foundUser) => {
     if (err) {
