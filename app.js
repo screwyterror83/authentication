@@ -3,23 +3,27 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+
 /* install and declare mongoose encryption module so it enables encryption capability. */
 // const encrypt = require("mongoose-encryption");
 // use hashing instead of mongoose-encryption
-const md5 = require("md5")
+// const md5 = require("md5")
 
 const app = express();
 
 app.use(express.static("public"));
 app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 
 const dbName = "userDB"
 mongoose.connect(
   "mongodb+srv://admin-darren:Mongodb382%23@cluster0-gmncq.mongodb.net/" +
-    dbName,
-  {
+  dbName, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
     useFindAndModify: false,
@@ -66,43 +70,50 @@ app.post("/register", (req, res) => {
   const userName = req.body.username;
   const password = req.body.password;
 
-  User.findOne({ email: userName }, (err, foundUser) => {
-    if (!foundUser) {
-      const newUser = new User(
-        {
-          email: userName,
-          password: md5(password)
-        });
 
-      newUser.save((err) => {
-        if (!err) {
-          res.render("secrets")
-        } else {
-          console.log(err)
-        };
-      })
+  User.findOne({
+    email: userName
+  }, (err, foundUser) => {
+    if (!foundUser) {
+      bcrypt.hash(password, saltRounds, (err, hash) => {
+        const newUser = new User({
+          email: userName,
+          password: hash,
+        });
+        newUser.save((err) => {
+          if (!err) {
+            res.render("secrets");
+          } else {
+            console.log(err);
+          }
+        });
+      });
     } else {
       res.redirect("/login")
     }
   })
 });
 
-app.post("/login", (req,res) => {
+app.post("/login", (req, res) => {
   const userName = req.body.username;
-  const password = md5(req.body.password);
+  const password = req.body.password;
 
-  User.findOne({ email: userName }, (err, foundUser) => {
+  User.findOne({
+    email: userName
+  }, (err, foundUser) => {
     if (err) {
       console.log(err)
     } else {
       if (foundUser) {
-        if (foundUser.password === password) {
-          console.log("Log in successful, please proceed.");
-          res.render("secrets");
-        } else {
-          console.log("Log in failed.");
-          res.render("home");  
-        }
+        bcrypt.compare(password, foundUser.password, (err, result) => {
+          if (result === true) {
+            console.log("Log in successful, please proceed.");
+            res.render("secrets");
+          } else {
+            console.log("Log in failed.");
+            res.render("home");
+          };
+        })
       } else {
         console.log("No such User")
         res.render("home");
