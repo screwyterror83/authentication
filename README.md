@@ -6,3 +6,7 @@ Level 1:  username and password only.
 
 Level 2:  Database Encryption for username and password.
           Connected to DB and store encrypted username and password.
+
+Level 3:  Hashing Password stored in .env file.
+          Connected to DB and store encrypted username and password, and have
+          .env encryption key hashed.
