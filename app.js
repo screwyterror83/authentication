@@ -68,8 +68,8 @@ app.post("/register", (req, res) => {
     if (!foundUser) {
       const newUser = new User(
         {
-          email: req.body.username,
-          password: req.body.password,
+          email: userName,
+          password: password
         });
 
       newUser.save((err) => {
@@ -101,6 +101,9 @@ app.post("/login", (req,res) => {
           console.log("Log in failed.");
           res.render("home");  
         }
+      } else {
+        console.log("No such User")
+        res.render("home");
       }
     }
   });
