@@ -1,13 +1,17 @@
+require("dotenv").config()
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
+/* install and declare mongoose encryption module so it enables encryption capability. */
+const encrypt = require("mongoose-encryption");
 
 const app = express();
 
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
+
 
 const dbName = "userDB"
 mongoose.connect(
@@ -25,6 +29,16 @@ const userSchema = new mongoose.Schema({
   password: String
 });
 
+
+/* declare a secretKey, and use this key to encrypt certain field in DB, in this case, 
+using it to encrypt "password" field. after this is done, no other action is required 
+to ensure the encryption of password entered.
+*/
+
+
+userSchema.plugin(encrypt, { secret: process.env.SECRETKEY, encryptedFields: ["password"] });
+
+
 const User = mongoose.model("User", userSchema);
 
 
@@ -35,6 +49,10 @@ app.get("/", (req, res) => {
 
 app.get("/login", (req, res) => {
   res.render("login");
+});
+
+app.get("/logout", (req, res) => {
+  res.redirect("/");
 });
 
 app.get("/register", (req, res) => {
@@ -80,13 +98,14 @@ app.post("/login", (req,res) => {
           console.log("Log in successful, please proceed.");
           res.render("secrets");
         } else {
-          res.send("Log in failed.");
+          console.log("Log in failed.");
           res.render("home");  
         }
       }
     }
   });
 });
+
 
 
 let port = process.env.PORT;
