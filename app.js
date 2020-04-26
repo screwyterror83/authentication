@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({
 
 
 app.use(session({
-  secret: "This is a secret no one should know.",
+  secret: process.env.SECRET,  //use .env to store secret
   resave: false,
   saveUninitialized: false
 }));
