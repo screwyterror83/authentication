@@ -13,3 +13,6 @@ Level 3:  Hashing Password using MD5.
 Level 4:  Salting and Hashing Passwords with bcrypt.
           Connected to DB and store encrypted username and hashed password using 
           Salting and Hashing Passwords with bcrypt.
+
+Level 5:  Cookies and Sessions.
+          use passport modules to create Cookie and user Sessions for website to store info.
